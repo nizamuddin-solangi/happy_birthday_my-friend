@@ -81,7 +81,7 @@ const TYPED_LINES = [
   "...",
   "> happy birthday!",
   "...",
-  "> so here's your gift...",
+  "> another year of wins, laughs, and crazy memories loading.",
   "...",
   "٩(◕‿◕)۶ ٩(◕‿◕)۶ ٩(◕‿◕)۶"
 ];
