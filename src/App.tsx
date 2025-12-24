@@ -356,7 +356,6 @@ function EnvironmentBackgroundController({
 
   useEffect(() => {
     if ("backgroundIntensity" in scene) {
-      // Cast required because older typings might not include backgroundIntensity yet.
       (scene as typeof scene & { backgroundIntensity: number }).backgroundIntensity =
         intensity;
     }
@@ -400,9 +399,7 @@ export default function App() {
       return;
     }
     audio.currentTime = 0;
-    void audio.play().catch(() => {
-      // ignore play errors (browser might block)
-    });
+    void audio.play().catch(() => {});
   }, []);
 
   const typingComplete = currentLineIndex >= TYPED_LINES.length;
@@ -486,25 +483,16 @@ export default function App() {
     return () => window.clearInterval(handle);
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code !== "Space" && event.key !== " ") {
-        return;
-      }
-      event.preventDefault();
-      if (!hasStarted) {
-        playBackgroundMusic();
-        setHasStarted(true);
-        return;
-      }
-      if (hasAnimationCompleted && isCandleLit) {
-        setIsCandleLit(false);
-        setFireworksActive(true);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+  const handleTap = useCallback(() => {
+    if (!hasStarted) {
+      playBackgroundMusic();
+      setHasStarted(true);
+      return;
+    }
+    if (hasAnimationCompleted && isCandleLit) {
+      setIsCandleLit(false);
+      setFireworksActive(true);
+    }
   }, [hasStarted, hasAnimationCompleted, isCandleLit, playBackgroundMusic]);
 
   const handleCardToggle = useCallback((id: string) => {
@@ -514,7 +502,29 @@ export default function App() {
   const isScenePlaying = hasStarted && sceneStarted;
 
   return (
-    <div className="App">
+    <div className="App" onClick={handleTap} style={{ cursor: 'pointer' }}>
+      {!hasStarted && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#000',
+          zIndex: 9999,
+          fontSize: '3rem',
+          fontWeight: 'bold',
+          color: '#fff',
+          fontFamily: 'monospace',
+          textAlign: 'center',
+          padding: '20px'
+        }}>
+          TAP TO START
+        </div>
+      )}
       <div
         className="background-overlay"
         style={{ opacity: backgroundOpacity }}
@@ -539,7 +549,7 @@ export default function App() {
         </div>
       </div>
       {hasAnimationCompleted && isCandleLit && (
-        <div className="hint-overlay">press space to blow out the candle</div>
+        <div className="hint-overlay">tap to blow out the candle</div>
       )}
       <Canvas
         gl={{ alpha: true }}
