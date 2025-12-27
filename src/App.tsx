@@ -81,7 +81,7 @@ const TYPED_LINES = [
   "...",
   "> happy birthday!",
   "...",
-  "> another year of wins, laughs, and crazy memories loading.",
+  "> may this year be the best year of your life",
   "...",
   "٩(◕‿◕)۶ ٩(◕‿◕)۶ ٩(◕‿◕)۶"
 ];
@@ -510,7 +510,7 @@ export default function App() {
     <div className="App" onClick={handleTap} style={{ 
       cursor: 'pointer',
       width: '100vw',
-      // height: '100vh',
+      height: '100vh',
       height: '100dvh',
       overflow: 'hidden',
       position: 'fixed',
