@@ -314,12 +314,16 @@ function AnimatedScene({
 function ConfiguredOrbitControls() {
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const camera = useThree((state) => state.camera);
+  const [isMobile] = useState(() => window.innerWidth < 768);
 
   useEffect(() => {
+    const radius = isMobile ? ORBIT_INITIAL_RADIUS * 1.8 : ORBIT_INITIAL_RADIUS;
+    const height = isMobile ? ORBIT_INITIAL_HEIGHT * 1.5 : ORBIT_INITIAL_HEIGHT;
+    
     const offset = new Vector3(
-      Math.sin(ORBIT_INITIAL_AZIMUTH) * ORBIT_INITIAL_RADIUS,
-      ORBIT_INITIAL_HEIGHT,
-      Math.cos(ORBIT_INITIAL_AZIMUTH) * ORBIT_INITIAL_RADIUS
+      Math.sin(ORBIT_INITIAL_AZIMUTH) * radius,
+      height,
+      Math.cos(ORBIT_INITIAL_AZIMUTH) * radius
     );
     const cameraPosition = ORBIT_TARGET.clone().add(offset);
     camera.position.copy(cameraPosition);
@@ -330,15 +334,15 @@ function ConfiguredOrbitControls() {
       controls.target.copy(ORBIT_TARGET);
       controls.update();
     }
-  }, [camera]);
+  }, [camera, isMobile]);
 
   return (
     <OrbitControls
       ref={controlsRef}
       enableDamping
       dampingFactor={0.05}
-      minDistance={ORBIT_MIN_DISTANCE}
-      maxDistance={ORBIT_MAX_DISTANCE}
+      minDistance={isMobile ? ORBIT_MIN_DISTANCE * 1.5 : ORBIT_MIN_DISTANCE}
+      maxDistance={isMobile ? ORBIT_MAX_DISTANCE * 1.5 : ORBIT_MAX_DISTANCE}
       minPolarAngle={ORBIT_MIN_POLAR}
       maxPolarAngle={ORBIT_MAX_POLAR}
     />
@@ -502,7 +506,17 @@ export default function App() {
   const isScenePlaying = hasStarted && sceneStarted;
 
   return (
-    <div className="App" onClick={handleTap} style={{ cursor: 'pointer' }}>
+    <div className="App" onClick={handleTap} style={{ 
+      cursor: 'pointer',
+      width: '100vw',
+      height: '100vh',
+      height: '100dvh',
+      overflow: 'hidden',
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      touchAction: 'manipulation'
+    }}>
       {!hasStarted && (
         <div style={{
           position: 'fixed',
@@ -515,28 +529,56 @@ export default function App() {
           justifyContent: 'center',
           backgroundColor: '#000',
           zIndex: 9999,
-          fontSize: '3rem',
+          fontSize: 'clamp(2rem, 8vw, 4rem)',
           fontWeight: 'bold',
           color: '#fff',
           fontFamily: 'monospace',
           textAlign: 'center',
-          padding: '20px'
+          padding: 'clamp(20px, 5vw, 40px)',
+          userSelect: 'none',
+          WebkitUserSelect: 'none'
         }}>
           TAP TO START
         </div>
       )}
       <div
         className="background-overlay"
-        style={{ opacity: backgroundOpacity }}
+        style={{ 
+          opacity: backgroundOpacity,
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#000',
+          zIndex: 100,
+          pointerEvents: 'none'
+        }}
       >
-        <div className="typed-text">
+        <div className="typed-text" style={{
+          fontFamily: 'monospace',
+          fontSize: 'clamp(1rem, 3.5vw, 1.5rem)',
+          color: '#00ff00',
+          textAlign: 'left',
+          padding: 'clamp(15px, 4vw, 30px)',
+          maxWidth: '90vw',
+          lineHeight: '1.6',
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word'
+        }}>
           {typedLines.map((line, index) => {
             const showCursor =
               cursorVisible &&
               index === cursorTargetIndex &&
               (!typingComplete || !sceneStarted);
             return (
-              <span className="typed-line" key={`typed-line-${index}`}>
+              <span className="typed-line" key={`typed-line-${index}`} style={{
+                display: 'block',
+                marginBottom: '0.5em'
+              }}>
                 {line || "\u00a0"}
                 {showCursor && (
                   <span aria-hidden="true" className="typed-cursor">
@@ -549,13 +591,42 @@ export default function App() {
         </div>
       </div>
       {hasAnimationCompleted && isCandleLit && (
-        <div className="hint-overlay">tap to blow out the candle</div>
+        <div className="hint-overlay" style={{
+          position: 'fixed',
+          bottom: 'clamp(20px, 5vh, 50px)',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          fontSize: 'clamp(0.9rem, 3vw, 1.2rem)',
+          color: '#fff',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          padding: 'clamp(10px, 2vw, 15px) clamp(20px, 4vw, 30px)',
+          borderRadius: '10px',
+          fontFamily: 'monospace',
+          zIndex: 200,
+          textAlign: 'center',
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+          maxWidth: '90vw',
+          boxSizing: 'border-box'
+        }}>
+          tap to blow out the candle
+        </div>
       )}
       <Canvas
         gl={{ alpha: true }}
-        style={{ background: "transparent" }}
+        style={{ 
+          background: "transparent",
+          width: '100%',
+          height: '100%',
+          touchAction: 'none'
+        }}
         onCreated={({ gl }) => {
           gl.setClearColor("#000000", 0);
+        }}
+        camera={{
+          fov: window.innerWidth < 768 ? 60 : 50,
+          near: 0.1,
+          far: 1000
         }}
       >
         <Suspense fallback={null}>
