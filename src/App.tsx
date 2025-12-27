@@ -317,8 +317,8 @@ function ConfiguredOrbitControls() {
   const [isMobile] = useState(() => window.innerWidth < 768);
 
   useEffect(() => {
-    const radius = isMobile ? ORBIT_INITIAL_RADIUS * 1.8 : ORBIT_INITIAL_RADIUS;
-    const height = isMobile ? ORBIT_INITIAL_HEIGHT * 1.5 : ORBIT_INITIAL_HEIGHT;
+    const radius = isMobile ? ORBIT_INITIAL_RADIUS * 3.5 : ORBIT_INITIAL_RADIUS;
+    const height = isMobile ? ORBIT_INITIAL_HEIGHT * 2.5 : ORBIT_INITIAL_HEIGHT;
     
     const offset = new Vector3(
       Math.sin(ORBIT_INITIAL_AZIMUTH) * radius,
@@ -341,10 +341,11 @@ function ConfiguredOrbitControls() {
       ref={controlsRef}
       enableDamping
       dampingFactor={0.05}
-      minDistance={isMobile ? ORBIT_MIN_DISTANCE * 1.5 : ORBIT_MIN_DISTANCE}
-      maxDistance={isMobile ? ORBIT_MAX_DISTANCE * 1.5 : ORBIT_MAX_DISTANCE}
+      minDistance={isMobile ? ORBIT_MIN_DISTANCE * 3 : ORBIT_MIN_DISTANCE}
+      maxDistance={isMobile ? ORBIT_MAX_DISTANCE * 3 : ORBIT_MAX_DISTANCE}
       minPolarAngle={ORBIT_MIN_POLAR}
       maxPolarAngle={ORBIT_MAX_POLAR}
+      enablePan={!isMobile}
     />
   );
 }
@@ -510,7 +511,7 @@ export default function App() {
       cursor: 'pointer',
       width: '100vw',
       height: '100vh',
-      height: '100dvh',
+      // height: '100dvh',
       overflow: 'hidden',
       position: 'fixed',
       top: 0,
@@ -555,19 +556,22 @@ export default function App() {
           justifyContent: 'center',
           backgroundColor: '#000',
           zIndex: 100,
-          pointerEvents: 'none'
+          pointerEvents: 'none',
+          transition: 'opacity 0.5s ease-out'
         }}
       >
         <div className="typed-text" style={{
           fontFamily: 'monospace',
-          fontSize: 'clamp(1rem, 3.5vw, 1.5rem)',
+          fontSize: 'clamp(0.875rem, 3vw, 1.5rem)',
           color: '#00ff00',
           textAlign: 'left',
           padding: 'clamp(15px, 4vw, 30px)',
-          maxWidth: '90vw',
-          lineHeight: '1.6',
+          maxWidth: '85vw',
+          width: '100%',
+          lineHeight: '1.5',
           whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word'
+          wordBreak: 'break-word',
+          overflowWrap: 'break-word'
         }}>
           {typedLines.map((line, index) => {
             const showCursor =
@@ -577,7 +581,7 @@ export default function App() {
             return (
               <span className="typed-line" key={`typed-line-${index}`} style={{
                 display: 'block',
-                marginBottom: '0.5em'
+                marginBottom: '0.4em'
               }}>
                 {line || "\u00a0"}
                 {showCursor && (
@@ -613,20 +617,24 @@ export default function App() {
         </div>
       )}
       <Canvas
-        gl={{ alpha: true }}
+        gl={{ alpha: true, antialias: true }}
         style={{ 
           background: "transparent",
           width: '100%',
           height: '100%',
-          touchAction: 'none'
+          touchAction: 'none',
+          position: 'fixed',
+          top: 0,
+          left: 0
         }}
         onCreated={({ gl }) => {
           gl.setClearColor("#000000", 0);
         }}
         camera={{
-          fov: window.innerWidth < 768 ? 60 : 50,
+          fov: window.innerWidth < 768 ? 75 : 50,
           near: 0.1,
-          far: 1000
+          far: 1000,
+          position: [0, 0, 5]
         }}
       >
         <Suspense fallback={null}>
