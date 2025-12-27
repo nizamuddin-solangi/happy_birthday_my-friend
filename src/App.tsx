@@ -510,7 +510,6 @@ export default function App() {
     <div className="App" onClick={handleTap} style={{ 
       cursor: 'pointer',
       width: '100vw',
-      height: '100vh',
       height: '100dvh',
       overflow: 'hidden',
       position: 'fixed',
